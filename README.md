@@ -1,6 +1,6 @@
 # rspack-repro
 
-- [Rspack website](https://rspack.dev/)
+- [Rspack website](https://rspack.rs/)
 - [Rspack repo](https://github.com/web-infra-dev/rspack)
 
 A GitHub template for creating a Rspack minimal reproducible example.

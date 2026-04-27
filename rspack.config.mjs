@@ -26,9 +26,27 @@ const config = {
       : path.resolve(__dirname, "rspack-dist"),
     filename: "[name].js",
   },
-  experiments: {
-    css: true,
+  module: {
+    rules: [
+      {
+        test: /\.m?js/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
+      {
+        test: /\.css$/,
+        type: "css/auto",
+      },
+    ],
   },
+  ...(isRunningWebpack
+    ? {
+        experiments: {
+          css: true,
+        },
+      }
+    : {}),
 };
 
 export default config;
