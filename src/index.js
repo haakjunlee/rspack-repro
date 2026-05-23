@@ -1,3 +1,3 @@
-import('./render').then(exports => {
+import('./render.js').then(exports => {
     exports.render()
 })

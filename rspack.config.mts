@@ -1,6 +1,9 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import HtmlWebpackPlugin from "html-webpack-plugin";
+import {
+  HtmlRspackPlugin,
+  SwcJsMinimizerRspackPlugin as SwcJsMinimizerPlugin,
+} from "@rspack/core";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isRunningWebpack = !!process.env.WEBPACK;
@@ -9,16 +12,13 @@ if (!isRunningRspack && !isRunningWebpack) {
   throw new Error("Unknown bundler");
 }
 
-/**
- * @type {import('webpack').Configuration | import('@rspack/cli').Configuration}
- */
 const config = {
   mode: "development",
   devtool: false,
   entry: {
     main: "./src/index",
   },
-  plugins: [new HtmlWebpackPlugin()],
+  plugins: isRunningRspack ? [new HtmlRspackPlugin()] : [],
   output: {
     clean: true,
     path: isRunningWebpack
@@ -29,10 +29,21 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.m?js/,
-        resolve: {
-          fullySpecified: false,
+        test: /\.(?:js|mjs|ts)$/,
+        exclude: [/node_modules/],
+        loader: "builtin:swc-loader",
+        options: {
+          detectSyntax: "auto",
+          minify: true,
+          jsc: {
+            minify: {
+              compress: {
+                unsafe_Function: true,
+              },
+            },
+          },
         },
+        type: "javascript/auto",
       },
       {
         test: /\.css$/,
@@ -40,13 +51,16 @@ const config = {
       },
     ],
   },
-  ...(isRunningWebpack
-    ? {
-        experiments: {
-          css: true,
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new SwcJsMinimizerPlugin({
+        minimizerOptions: {
+          compress: {unsafe_Function: true,},
         },
-      }
-    : {}),
+      }),
+    ],
+  },
 };
 
 export default config;
